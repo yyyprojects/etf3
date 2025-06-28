@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Interactive Guide to ETFs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Embrace -->
+    <!-- Application Structure Plan: The SPA is designed around a user-centric, question-based flow, rather than mirroring the report's structure. The goal is to guide a novice from basic concepts to more complex ones in an intuitive way. The structure consists of five main sections: 1. The Big Picture (What is an ETF?), 2. The Engine Room (How do they work?), 3. The Trade-Offs (Pros vs. Cons), 4. The Marketplace (Types & Costs), and 5. The Showdown (Comparison). This task-oriented design allows users to explore what's most relevant to them, using interactive elements like animated diagrams, filterable galleries, and comparison tools to transform passive reading into active learning. A sticky navigation bar facilitates easy movement between these logical sections. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: ETF Growth -> Goal: Show Change -> Viz: Chart.js Line Chart -> Interaction: Hover for details -> Justification: Standard, clear visualization for time-series data.
+        - Report Info: Creation/Redemption -> Goal: Organize Process -> Viz: HTML/CSS/JS Animated Diagram -> Interaction: Click buttons to trigger flow -> Justification: Makes an abstract financial mechanism tangible and easy to follow without complex text.
+        - Report Info: ETF Types -> Goal: Organize/Inform -> Viz: Filterable HTML/CSS Card Gallery -> Interaction: Click filters to sort -> Justification: More engaging and less overwhelming than a long list; promotes exploration.
+        - Report Info: Costs (Expense Ratios) -> Goal: Compare -> Viz: Chart.js Bar Chart & Interactive Slider -> Interaction: Slider shows long-term cost impact -> Justification: Starkly visualizes the importance of low fees and personalizes the data.
+        - Report Info: ETF vs. Stock vs. Mutual Fund -> Goal: Compare -> Viz: Interactive HTML Table -> Interaction: Click attribute to highlight comparison -> Justification: Breaks a dense data table into digestible, user-controlled comparisons.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDF8F0;
+            color: #5D534A;
+        }
+        .nav-active {
+            color: #E57A44;
+            border-bottom-color: #E57A44;
+        }
+        .nav-inactive {
+            color: #5D534A;
+            border-bottom-color: transparent;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .asset-flow-dot {
+            transition: all 1s ease-in-out;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-[#FDF8F0]/80 backdrop-blur-sm sticky top-0 z-50 border-b border-[#E57A44]/20">
+        <nav class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <h1 class="text-xl md:text-2xl font-bold text-[#E57A44]">An ETF Explainer</h1>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#what-is-an-etf" class="nav-item nav-inactive font-medium border-b-2 pb-1 transition-colors duration-300">The Basics</a>
+                    <a href="#how-it-works" class="nav-item nav-inactive font-medium border-b-2 pb-1 transition-colors duration-300">How It Works</a>
+                    <a href="#pros-cons" class="nav-item nav-inactive font-medium border-b-2 pb-1 transition-colors duration-300">Pros & Cons</a>
+                    <a href="#types-costs" class="nav-item nav-inactive font-medium border-b-2 pb-1 transition-colors duration-300">Types & Costs</a>
+                    <a href="#comparison" class="nav-item nav-inactive font-medium border-b-2 pb-1 transition-colors duration-300">The Showdown</a>
+                </div>
+                <div class="md:hidden">
+                    <select id="mobile-nav" class="bg-white border border-[#A7B89D] rounded-md py-2 px-3 text-[#5D534A] focus:outline-none focus:ring-2 focus:ring-[#E57A44]">
+                        <option value="#what-is-an-etf">The Basics</option>
+                        <option value="#how-it-works">How It Works</option>
+                        <option value="#pros-cons">Pros & Cons</option>
+                        <option value="#types-costs">Types & Costs</option>
+                        <option value="#comparison">The Showdown</option>
+                    </select>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 md:py-16">
+        
+        <section id="what-is-an-etf" class="min-h-screen pt-20 -mt-20">
+            <div class="text-center max-w-3xl mx-auto">
+                <h2 class="text-4xl md:text-5xl font-bold text-[#5D534A] mb-4">What is an Exchange-Traded Fund?</h2>
+                <p class="text-lg md:text-xl text-[#5D534A]/80 mb-12">This section introduces the fundamental concept of an ETF. We'll break down its hybrid nature, show its massive growth in the US market, and explain why it has become a go-to investment tool for millions. The goal is to give you a simple, clear foundation before we dive into the details.</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-8 items-center mb-16">
+                <div class="bg-white p-8 rounded-xl shadow-md border border-gray-200">
+                    <h3 class="text-2xl font-bold text-[#E57A44] mb-3">A Simple Analogy</h3>
+                    <p class="text-[#5D534A]">Imagine a shopping basket. Instead of buying just one apple (a single stock), you buy a basket filled with a variety of fruits (many different stocks or bonds). An ETF is like that basket: it holds a collection of investments, but you can buy or sell the entire basket on the stock market as easily as if it were a single item. This powerful combination gives you instant diversification.</p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6">
+                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center">
+                        <div class="text-4xl mr-4">📈</div>
+                        <div>
+                            <h4 class="font-bold text-[#A7B89D]">The Flexibility of a Stock</h4>
+                            <p class="text-sm text-[#5D534A]/80">Buy and sell anytime the market is open, at prices that change throughout the day.</p>
+                        </div>
+                    </div>
+                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center">
+                        <div class="text-4xl mr-4">🧺</div>
+                        <div>
+                            <h4 class="font-bold text-[#A7B89D]">The Diversification of a Fund</h4>
+                            <p class="text-sm text-[#5D534A]/80">Spread your investment across dozens or hundreds of assets, reducing single-company risk.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                <h3 class="text-2xl font-bold text-[#E57A44] mb-4 text-center">Explosive Growth in the US Market</h3>
+                <p class="text-center text-[#5D534A]/80 max-w-2xl mx-auto mb-6">From a single fund in the 1990s, ETFs have grown into a multi-trillion dollar industry, signaling a massive shift in how people invest.</p>
+                <div class="chart-container">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="how-it-works" class="min-h-screen pt-20 -mt-20">
+            <div class="text-center max-w-3xl mx-auto">
+                <h2 class="text-4xl md:text-5xl font-bold text-[#5D534A] mb-4">The Engine Room: How ETFs Work</h2>
+                <p class="text-lg md:text-xl text-[#5D534A]/80 mb-12">This is the most technical part, but we've simplified it. This section visually demonstrates the unique "creation and redemption" process that keeps ETF prices fair and allows them to be so efficient. Understanding this mechanism is key to understanding why ETFs are so popular.</p>
+            </div>
+            
+            <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                <h3 class="text-2xl font-bold text-[#E57A44] mb-2 text-center">The Creation & Redemption Machine</h3>
+                <p class="text-center text-[#5D534A]/80 max-w-2xl mx-auto mb-6">This special process, involving "Authorized Participants" (APs), keeps the supply of ETF shares flexible and ensures the market price stays very close to the actual value of its underlying assets. Click the buttons to see it in action.</p>
+                
+                <div class="w-full h-80 relative" id="animation-container">
+                    <div id="ap" class="absolute top-1/2 left-4 -translate-y-1/2 bg-[#A7B89D]/20 border border-[#A7B89D] p-4 rounded-lg text-center w-40">
+                        <p class="font-bold">Authorized Participant (AP)</p>
+                    </div>
+                    <div id="sponsor" class="absolute top-1/2 right-4 -translate-y-1/2 bg-[#E57A44]/20 border border-[#E57A44] p-4 rounded-lg text-center w-40">
+                         <p class="font-bold">ETF Sponsor</p>
+                    </div>
+                    <div id="market" class="absolute top-4 left-1/2 -translate-x-1/2 bg-gray-200 border border-gray-400 p-4 rounded-lg text-center">
+                        <p class="font-bold">Stock Market</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-center space-x-4 mt-4">
+                    <button id="create-btn" class="bg-[#E57A44] text-white font-bold py-2 px-6 rounded-lg hover:bg-[#d46a34] transition-colors">See Creation</button>
+                    <button id="redeem-btn" class="bg-[#A7B89D] text-white font-bold py-2 px-6 rounded-lg hover:bg-[#96a78c] transition-colors">See Redemption</button>
+                </div>
+                <p id="animation-text" class="text-center mt-4 h-10 text-[#5D534A] font-medium"></p>
+            </div>
+        </section>
+
+        <section id="pros-cons" class="min-h-screen pt-20 -mt-20">
+            <div class="text-center max-w-3xl mx-auto">
+                <h2 class="text-4xl md:text-5xl font-bold text-[#5D534A] mb-4">The Trade-Offs: Pros & Cons</h2>
+                <p class="text-lg md:text-xl text-[#5D534A]/80 mb-12">Why should you consider an ETF? And what are the risks? This section provides a balanced view, laying out the key advantages and potential drawbacks. Interacting with these points will give you a clear picture of when ETFs are a great choice, and what to watch out for.</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                    <h3 class="text-3xl font-bold text-green-600 mb-6 text-center">Advantages</h3>
+                    <ul class="space-y-4" id="pros-list">
+                    </ul>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                    <h3 class="text-3xl font-bold text-red-600 mb-6 text-center">Risks & Considerations</h3>
+                    <ul class="space-y-4" id="cons-list">
+                    </ul>
+                </div>
+            </div>
+            <div id="details-box" class="mt-8 p-6 bg-[#A7B89D]/20 rounded-xl border border-[#A7B89D] transition-opacity duration-300 opacity-0 min-h-[100px]">
+                <p id="details-text" class="text-center text-[#5D534A]"></p>
+            </div>
+        </section>
+
+        <section id="types-costs" class="min-h-screen pt-20 -mt-20">
+            <div class="text-center max-w-3xl mx-auto">
+                <h2 class="text-4xl md:text-5xl font-bold text-[#5D534A] mb-4">The Marketplace: Types & Costs</h2>
+                <p class="text-lg md:text-xl text-[#5D534A]/80 mb-12">The world of ETFs is vast. Here, you can explore the most common types to see how you can target specific industries, strategies, or assets. We also break down the costs, showing interactively how even small fees can impact your long-term returns.</p>
+            </div>
+
+            <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200 mb-16">
+                 <h3 class="text-2xl font-bold text-[#E57A44] mb-2 text-center">A Universe of Options</h3>
+                <p class="text-center text-[#5D534A]/80 max-w-2xl mx-auto mb-6">Filter through different ETF categories to discover the variety of investment goals they can help you achieve.</p>
+                <div class="flex flex-wrap justify-center gap-2 mb-8" id="filter-buttons">
+                </div>
+                <div id="etf-gallery" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                </div>
+            </div>
+            
+            <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                <h3 class="text-2xl font-bold text-[#E57A44] mb-2 text-center">Understanding the Costs</h3>
+                <p class="text-center text-[#5D534A]/80 max-w-2xl mx-auto mb-6">Low costs are a major advantage of ETFs. This chart compares a typical low-cost ETF with a more expensive mutual fund. Use the slider to see how that small difference compounds into big savings over time.</p>
+                <div class="chart-container">
+                    <canvas id="costChart"></canvas>
+                </div>
+                <div class="max-w-xl mx-auto mt-6">
+                    <label for="investment-years" class="block text-center font-medium mb-2">Investment Period: <span id="years-label" class="font-bold text-[#E57A44]">10</span> years</label>
+                    <input id="investment-years" type="range" min="1" max="40" value="10" class="w-full h-2 bg-[#A7B89D]/30 rounded-lg appearance-none cursor-pointer">
+                    <p id="cost-impact-text" class="text-center mt-4 font-semibold text-lg"></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="comparison" class="pt-20 -mt-20">
+            <div class="text-center max-w-3xl mx-auto">
+                <h2 class="text-4xl md:text-5xl font-bold text-[#5D534A] mb-4">The Showdown: ETF vs. Alternatives</h2>
+                <p class="text-lg md:text-xl text-[#5D534A]/80 mb-12">How does an ETF stack up against buying an individual stock or a traditional mutual fund? This interactive comparison lets you focus on one attribute at a time—like cost, trading, or taxes—to clearly see the key differences and decide which is right for you.</p>
+            </div>
+            <div class="flex flex-col lg:flex-row gap-8">
+                <div id="comparison-nav" class="lg:w-1/4 flex lg:flex-col flex-wrap gap-2">
+                </div>
+                <div class="flex-1 overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="p-4 text-left"></th>
+                                <th class="p-4 text-center border-b-2 border-[#E57A44] text-[#E57A44] font-bold text-xl">ETF</th>
+                                <th class="p-4 text-center border-b-2 border-gray-300 font-bold text-xl">Stock</th>
+                                <th class="p-4 text-center border-b-2 border-gray-300 font-bold text-xl">Mutual Fund</th>
+                            </tr>
+                        </thead>
+                        <tbody id="comparison-table">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white mt-16 border-t">
+        <div class="container mx-auto py-6 px-4 text-center text-[#5D534A]/60 text-sm">
+            <p>This interactive guide is for educational purposes only, based on the provided research report. It is not financial advice.</p>
+        </div>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const sections = document.querySelectorAll('section');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navItems.forEach(item => {
+                        if (item.getAttribute('href').substring(1) === entry.target.id) {
+                            item.classList.add('nav-active');
+                            item.classList.remove('nav-inactive');
+                        } else {
+                            item.classList.add('nav-inactive');
+                            item.classList.remove('nav-active');
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+        
+        const mobileNav = document.getElementById('mobile-nav');
+        mobileNav.addEventListener('change', (e) => {
+            window.location.hash = e.target.value;
+        });
+
+        const growthChartCtx = document.getElementById('growthChart').getContext('2d');
+        const growthData = {
+            labels: ['1993', '2000', '2008', '2016', '2024'],
+            datasets: [{
+                label: 'US ETF Assets Under Management (Trillions USD)',
+                data: [0.001, 0.065, 0.5, 2.5, 7.0],
+                borderColor: '#E57A44',
+                backgroundColor: '#E57A4420',
+                fill: true,
+                tension: 0.3,
+            }]
+        };
+        new Chart(growthChartCtx, {
+            type: 'line',
+            data: growthData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true, ticks: { callback: value => `$${value}T` } } }
+            }
+        });
+        
+        const createBtn = document.getElementById('create-btn');
+        const redeemBtn = document.getElementById('redeem-btn');
+        const animationText = document.getElementById('animation-text');
+        const animationContainer = document.getElementById('animation-container');
+
+        const createDot = (color = 'bg-blue-500') => {
+            const dot = document.createElement('div');
+            dot.className = `asset-flow-dot absolute w-3 h-3 ${color} rounded-full`;
+            animationContainer.appendChild(dot);
+            return dot;
+        };
+        
+        const animateFlow = (steps) => {
+            let currentStep = 0;
+            const dot = createDot(steps[0].color);
+            dot.style.left = steps[0].start[0];
+            dot.style.top = steps[0].start[1];
+            
+            const interval = setInterval(() => {
+                if(currentStep >= steps.length) {
+                    clearInterval(interval);
+                    dot.remove();
+                    animationText.textContent = '';
+                    createBtn.disabled = false;
+                    redeemBtn.disabled = false;
+                    return;
+                }
+                const step = steps[currentStep];
+                animationText.textContent = step.text;
+                dot.style.left = step.end[0];
+                dot.style.top = step.end[1];
+                currentStep++;
+            }, 1500);
+        };
+
+        createBtn.addEventListener('click', () => {
+            createBtn.disabled = true;
+            redeemBtn.disabled = true;
+            const steps = [
+                { text: '1. AP buys underlying stocks on the market.', start: ['50%', '30px'], end: ['120px', '50%'], color: 'bg-blue-500'},
+                { text: '2. AP delivers the basket of stocks to the ETF Sponsor.', start: ['120px', '50%'], end: ['calc(100% - 130px)', '50%'], color: 'bg-blue-500' },
+                { text: '3. Sponsor gives newly created ETF shares to the AP.', start: ['calc(100% - 130px)', '50%'], end: ['120px', '50%'], color: 'bg-green-500' },
+                { text: '4. AP sells the new ETF shares on the market.', start: ['120px', '50%'], end: ['50%', '30px'], color: 'bg-green-500' }
+            ];
+            animateFlow(steps);
+        });
+
+        redeemBtn.addEventListener('click', () => {
+            createBtn.disabled = true;
+            redeemBtn.disabled = true;
+             const steps = [
+                { text: '1. AP buys ETF shares on the market.', start: ['50%', '30px'], end: ['120px', '50%'], color: 'bg-green-500' },
+                { text: '2. AP delivers ETF shares to the ETF Sponsor.', start: ['120px', '50%'], end: ['calc(100% - 130px)', '50%'], color: 'bg-green-500' },
+                { text: '3. Sponsor gives the underlying stocks to the AP.', start: ['calc(100% - 130px)', '50%'], end: ['120px', '50%'], color: 'bg-blue-500' },
+                { text: '4. AP sells the stocks on the market.', start: ['120px', '50%'], end: ['50%', '30px'], color: 'bg-blue-500' }
+            ];
+            animateFlow(steps);
+        });
+
+        const prosData = [
+            { title: "Diversification", text: "Instantly own a piece of many companies, spreading out your risk. If one company performs poorly, it has a smaller impact on your overall investment." },
+            { title: "Low Cost", text: "ETFs generally have lower annual fees (expense ratios) and no sales commissions compared to many mutual funds, letting you keep more of your returns." },
+            { title: "Tax Efficiency", text: "The unique creation/redemption process means ETFs typically generate fewer taxable capital gains for investors than mutual funds, a big plus in taxable accounts." },
+            { title: "Trading Flexibility", text: "Buy or sell ETFs anytime during the trading day at live market prices, just like a stock. You can use advanced order types like limit orders." }
+        ];
+        const consData = [
+            { title: "Market Risk", text: "Diversification doesn't eliminate the risk of the entire market declining. If the S&P 500 falls, an S&P 500 ETF will fall with it." },
+            { title: "Trading Costs", text: "While often commission-free, there's always a 'bid-ask spread'—a small difference between buy and sell prices. This can add up for frequent traders." },
+            { title: "Liquidity Risk", text: "Niche or thinly-traded ETFs can be harder to sell at a fair price, especially during market stress. Their bid-ask spreads can widen significantly." },
+            { title: "Concentration Risk", text: "Specialized sector or thematic ETFs can be risky. If you buy a 'Solar Energy ETF' and that industry struggles, your investment will be hit hard." }
+        ];
+        const prosList = document.getElementById('pros-list');
+        const consList = document.getElementById('cons-list');
+        const detailsBox = document.getElementById('details-box');
+        const detailsText = document.getElementById('details-text');
+        
+        const populateList = (listEl, data) => {
+            data.forEach(item => {
+                const li = document.createElement('li');
+                li.className = "p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-[#A7B89D]/20 transition-colors border border-transparent hover:border-[#A7B89D]";
+                li.textContent = item.title;
+                li.addEventListener('click', () => {
+                    detailsText.textContent = item.text;
+                    detailsBox.classList.remove('opacity-0');
+                    document.querySelectorAll('#pros-cons li').forEach(el => el.classList.remove('bg-[#A7B89D]/30'));
+                    li.classList.add('bg-[#A7B89D]/30');
+                });
+                listEl.appendChild(li);
+            });
+        };
+        populateList(prosList, prosData);
+        populateList(consList, consData);
+
+        const etfTypes = [
+            { name: "Equity", desc: "Tracks stock market indexes, from broad markets to specific countries.", cat: "Broad" },
+            { name: "Bond / Fixed Income", desc: "Holds a collection of bonds, providing regular income.", cat: "Broad" },
+            { name: "Commodity", desc: "Tracks physical goods like gold or oil. Often used for diversification.", cat: "Specialty" },
+            { name: "Sector", desc: "Focuses on specific industries like technology, healthcare, or energy.", cat: "Specialty" },
+            { name: "Factor ('Smart Beta')", desc: "Targets specific investment styles like 'Value' or 'Momentum'.", cat: "Strategy" },
+            { name: "Thematic", desc: "Invests in long-term trends like artificial intelligence or clean energy.", cat: "Strategy" },
+            { name: "Actively Managed", desc: "A portfolio manager actively picks investments to try and beat the market.", cat: "Strategy" },
+        ];
+        const filterButtonsContainer = document.getElementById('filter-buttons');
+        const gallery = document.getElementById('etf-gallery');
+        const categories = ['All', ...new Set(etfTypes.map(etf => etf.cat))];
+        
+        categories.forEach(cat => {
+            const button = document.createElement('button');
+            button.className = "filter-btn px-4 py-2 text-sm font-medium rounded-full transition-colors";
+            button.dataset.filter = cat;
+            button.textContent = cat;
+            if(cat === 'All') {
+                button.classList.add('bg-[#E57A44]', 'text-white');
+            } else {
+                button.classList.add('bg-gray-200', 'text-[#5D534A]', 'hover:bg-gray-300');
+            }
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('bg-[#E57A44]', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-[#5D534A]', 'hover:bg-gray-300');
+                });
+                button.classList.add('bg-[#E57A44]', 'text-white');
+                button.classList.remove('bg-gray-200', 'text-[#5D534A]', 'hover:bg-gray-300');
+                
+                const filter = button.dataset.filter;
+                document.querySelectorAll('.etf-card').forEach(card => {
+                    if (filter === 'All' || card.dataset.category === filter) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+            filterButtonsContainer.appendChild(button);
+        });
+
+        etfTypes.forEach(etf => {
+            const card = document.createElement('div');
+            card.className = "etf-card bg-gray-50 p-6 rounded-lg border border-gray-200";
+            card.dataset.category = etf.cat;
+            card.innerHTML = `<h4 class="font-bold text-[#A7B89D]">${etf.name}</h4><p class="text-sm text-[#5D534A]/80">${etf.desc}</p>`;
+            gallery.appendChild(card);
+        });
+        
+        const costChartCtx = document.getElementById('costChart').getContext('2d');
+        let costChart;
+        const yearsSlider = document.getElementById('investment-years');
+        const yearsLabel = document.getElementById('years-label');
+        const costImpactText = document.getElementById('cost-impact-text');
+
+        const initialInvestment = 10000;
+        const etfFee = 0.05 / 100;
+        const mfFee = 0.50 / 100;
+        const marketReturn = 0.07;
+
+        const calculateGrowth = (fee, years) => {
+            let value = initialInvestment;
+            for (let i = 0; i < years; i++) {
+                value = value * (1 + marketReturn - fee);
+            }
+            return value;
+        };
+
+        const updateCostChart = (years) => {
+            const etfValue = calculateGrowth(etfFee, years);
+            const mfValue = calculateGrowth(mfFee, years);
+
+            const data = {
+                labels: ['Low-Cost ETF (0.05%)', 'Higher-Cost Fund (0.50%)'],
+                datasets: [{
+                    label: `Value of $10,000 after ${years} years`,
+                    data: [etfValue, mfValue],
+                    backgroundColor: ['#A7B89D', '#E57A4480'],
+                    borderColor: ['#96a78c', '#E57A44'],
+                    borderWidth: 1
+                }]
+            };
+
+            if (costChart) costChart.destroy();
+            costChart = new Chart(costChartCtx, {
+                type: 'bar',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: { x: { ticks: { callback: value => `$${value.toLocaleString()}` } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            const difference = etfValue - mfValue;
+            costImpactText.textContent = `By choosing the low-cost ETF, you'd have $${difference.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})} more.`;
+        };
+
+        yearsSlider.addEventListener('input', (e) => {
+            const years = e.target.value;
+            yearsLabel.textContent = years;
+            updateCostChart(years);
+        });
+        updateCostChart(10);
+        
+        const comparisonData = [
+            { feature: "Trading", etf: "Trades like a stock, all day long.", stock: "Trades all day long.", mutualFund: "Only once per day, after market close." },
+            { feature: "Diversification", etf: "High. One share holds many assets.", stock: "None. You own one single company.", mutualFund: "High. One share holds many assets." },
+            { feature: "Costs", etf: "Very low annual fees (expense ratio).", stock: "No annual fee, just trade commissions.", mutualFund: "Higher annual fees, potential sales charges." },
+            { feature: "Tax Efficiency", etf: "High. Rarely passes on capital gains.", stock: "You control when you realize gains.", mutualFund: "Lower. Can pass on capital gains to you." },
+            { feature: "Minimum Investment", etf: "Price of one share.", stock: "Price of one share.", mutualFund: "Often requires a higher initial minimum ($1,000+)." }
+        ];
+        const compNav = document.getElementById('comparison-nav');
+        const compTable = document.getElementById('comparison-table');
+
+        comparisonData.forEach((item, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'comp-nav-btn p-3 rounded-lg text-left transition-colors duration-200';
+            btn.textContent = item.feature;
+            btn.dataset.index = index;
+            if(index === 0) {
+                 btn.classList.add('bg-[#E57A44]', 'text-white');
+            } else {
+                 btn.classList.add('bg-gray-100', 'hover:bg-gray-200');
+            }
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.comp-nav-btn').forEach(b => {
+                    b.classList.remove('bg-[#E57A44]', 'text-white');
+                    b.classList.add('bg-gray-100', 'hover:bg-gray-200');
+                });
+                btn.classList.add('bg-[#E57A44]', 'text-white');
+                
+                document.querySelectorAll('.comp-row').forEach(row => {
+                     row.classList.remove('bg-[#FDF8F0]');
+                     if(row.dataset.index === btn.dataset.index) {
+                         row.classList.add('bg-[#FDF8F0]');
+                     }
+                });
+            });
+            compNav.appendChild(btn);
+
+            const row = document.createElement('tr');
+            row.className = "comp-row transition-colors duration-200";
+            if (index === 0) row.classList.add('bg-[#FDF8F0]');
+            if(index % 2 !== 0) row.classList.add('bg-white');
+            
+            row.dataset.index = index;
+            row.innerHTML = `
+                <td class="p-4 font-bold text-left">${item.feature}</td>
+                <td class="p-4 text-center">${item.etf}</td>
+                <td class="p-4 text-center">${item.stock}</td>
+                <td class="p-4 text-center">${item.mutualFund}</td>
+            `;
+            compTable.appendChild(row);
+        });
+
+    });
+    </script>
+</body>
+</html>
